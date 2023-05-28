@@ -1,4 +1,4 @@
-## 大学实验室硬件方向招新题目样例 [<img src="./图片/LOGO.png" width="100" height="100" align="right">](gxist.cn)
+## 大学实验室硬件方向招新题目样例 [<img src="./图片/LOGO.jpg" width="100" height="100" align="right">](gxist.cn)
 ## 该项目包含题目要求与培训资料
 ```shell
 ├─图片
