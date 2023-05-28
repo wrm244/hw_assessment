@@ -1,0 +1,261 @@
+C51 COMPILER V9.60.0.0   BEE                                                               03/20/2022 20:06:19 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE BEE
+OBJECT MODULE PLACED IN .\Objects\Bee.obj
+COMPILER INVOKED BY: D:\Program Files\Keil^5\C51\BIN\C51.EXE Bee.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\L
+                    -istings\Bee.lst) OBJECT(.\Objects\Bee.obj)
+
+line level    source
+
+   1          #include <REGX52.H>
+   2          #include "Timer1.h"
+   3          #include "Delay.h"
+   4          #include "IR.h"
+   5          #define P 0
+   6          #define L1 1
+   7          #define L1_ 2
+   8          #define L2 3
+   9          #define L2_ 4
+  10          #define L3 5
+  11          #define L4 6
+  12          #define L4_ 7
+  13          #define L5 8
+  14          #define L5_ 9
+  15          #define L6 10
+  16          #define L6_ 11
+  17          #define L7 12
+  18          #define M1 13
+  19          #define M1_ 14
+  20          #define M2 15
+  21          #define M2_ 16
+  22          #define M3 17
+  23          #define M4 18
+  24          #define M4_ 19
+  25          #define M5 20
+  26          #define M5_ 21
+  27          #define M6 22
+  28          #define M6_ 23
+  29          #define M7 24
+  30          #define H1 25
+  31          #define H1_ 26
+  32          #define H2 27
+  33          #define H2_ 28
+  34          #define H3 29
+  35          #define H4 30
+  36          #define H4_ 31
+  37          #define H5 32
+  38          #define H5_ 33
+  39          #define H6 34
+  40          #define H6_ 35
+  41          #define H7 36
+  42          
+  43          sbit Buzzer = P1 ^ 5;
+  44          unsigned char FreqSelect1 = 0, MusicSelect1 = 0;
+  45          unsigned char FreqSelect2 = 0, MusicSelect2 = 0;
+  46          unsigned char FreqSelect = 0,temp = -1;
+  47          unsigned char Command = 0;
+  48          
+  49          unsigned int FreqTable[] = {0, 63556, 63731, 63836, 63929, 64021, 64104, 64185,
+  50                                      64261, 64332, 64400, 64464, 64524, 64580, 64634, 64685, 64733, 64778, 64820,
+  51                                      64861, 64899, 64935, 64968, 65000, 65030, 65058, 65086, 65111, 65135, 65157,
+  52                                      65179, 65199, 65218, 65235, 65252, 65268, 65283};
+  53          
+  54          unsigned char code Music1[] = {M3, 2, M5, 2, M5, 3, M6, 1, M5, 2, M3, 2, M1, 2, M1, 1, M2, 1,
+C51 COMPILER V9.60.0.0   BEE                                                               03/20/2022 20:06:19 PAGE 2   
+
+  55                                         M3, 2, M3, 2, M2, 2, M1, 2, M2, 4, P, 4,
+  56                                         M3, 2, M5, 2, M5, 3, M6, 1, M5, 2, M3, 2, M1, 2, M1, 1, M2, 1,
+  57                                         M3, 2, M3, 2, M2, 2, M2, 2, M1, 4, P, 4,
+  58                                         M4, 4, M4, 4, M4, 2, M6, 6,
+  59                                         M5, 4, M5, 2, M3, 2, M2, 4, P, 4,
+  60                                         M3, 2, M5, 2, M5, 3, M6, 1, M5, 2, M3, 2, M1, 2, M1, 1, M2, 1,
+  61                                         M3, 2, M3, 2, M2, 2, M2, 2, M1, 4, P, 4, 0xFF};
+  62          
+  63          unsigned char code Music2[] = {M1, 4, M1, 4, M5, 4, M5, 4, M6, 4, M6, 4, M5, 4, P, 4,
+  64                                         M4, 4, M4, 4, M3, 4, M3, 4, M2, 4, M2, 4, M1, 4, P, 4, M5, 4, M5, 4, M4, 4,
+             - M4, 4, M3, 4, M3, 4,
+  65                                         M2, 4, P, 4, M5, 4, M5, 4, M4, 4, M4, 4, M3, 4, M3, 4,
+  66                                         M2, 4, P, 4, M1, 4, M1, 4, M5, 4, M5, 4, M6, 4, M6, 4, M5, 4, P, 4, M4, 4, 
+             -M4, 4, M3, 4, M3, 4, M2, 4, M2, 4, M1, 4, P, 4, 0xFF};
+  67          
+  68          void Bee_Set(unsigned char Count)
+  69          {
+  70   1          IR_Init();
+  71   1      
+  72   1          while (1)
+  73   1          {
+  74   2              TR1 = 0;
+  75   2              if (IR_GetDataFlag()) //如果收到数据帧
+  76   2              {
+  77   3                  Command = IR_GetCommand(); //获取遥控器命令码
+  78   3      
+  79   3                  if (Command == 0x44)
+  80   3                  {
+  81   4                      TR1 = ~TR1;
+  82   4                      Count = 0;
+  83   4                      break;
+  84   4                  }
+  85   3              }
+  86   2          }
+  87   1          while (1)
+  88   1          {
+  89   2              while (Count == 0)
+  90   2              {
+  91   3      
+  92   3                  if (IR_GetDataFlag()) //如果收到数据帧
+  93   3                  {
+  94   4                      Command = IR_GetCommand(); //获取遥控器命令码
+  95   4      
+  96   4                      if (Command == 0x44)
+  97   4                      {
+  98   5                          TR1 = ~TR1;
+  99   5                          temp = Count;
+ 100   5                          Count = -1;
+ 101   5                          break;
+ 102   5                      }
+ 103   4                      if (Command == 0x40)
+ 104   4                                              
+ 105   4                      {
+ 106   5                                              Count--;
+ 107   5                          if (Count < 0)
+ 108   5                          {
+ 109   6                              Count = 1;
+ 110   6                              break;
+ 111   6                          }
+ 112   5                         
+ 113   5                      }
+ 114   4                      if (Command == 0x43)
+C51 COMPILER V9.60.0.0   BEE                                                               03/20/2022 20:06:19 PAGE 3   
+
+ 115   4                      {
+ 116   5                                              Count++;
+ 117   5                          if (Count > 1)
+ 118   5                          {
+ 119   6                              Count = 0;
+ 120   6                              break;
+ 121   6                          }
+ 122   5                      }
+ 123   4                  }
+ 124   3                  FreqSelect1 = Music1[MusicSelect1];
+ 125   3                  FreqSelect = FreqSelect1;
+ 126   3                  MusicSelect1++;
+ 127   3                  Delay(125 * Music1[MusicSelect1]);
+ 128   3                  MusicSelect1++;
+ 129   3                  TR1 = 0;
+ 130   3                  Delay(5);
+ 131   3                  TR1 = 1;
+ 132   3                  if (Music1[MusicSelect1] == 0xFF)
+ 133   3                  {
+ 134   4                      MusicSelect1 = 0;
+ 135   4                  }
+ 136   3              }
+ 137   2              while (Count == 1)
+ 138   2              {
+ 139   3      
+ 140   3                  if (IR_GetDataFlag()) //如果收到数据帧
+ 141   3                  {
+ 142   4                      Command = IR_GetCommand(); //获取遥控器命令码
+ 143   4      
+ 144   4                      if (Command == 0x44)
+ 145   4                      {
+ 146   5                          TR1 = ~TR1;
+ 147   5                          temp = Count;
+ 148   5                          Count = -1;
+ 149   5                          break;
+ 150   5                      }
+ 151   4                     if (Command == 0x40)
+ 152   4                                              
+ 153   4                      {
+ 154   5                                              Count--;
+ 155   5                          if (Count < 0)
+ 156   5                          {
+ 157   6                              Count = 1;
+ 158   6                              break;
+ 159   6                          }
+ 160   5                         
+ 161   5                      }
+ 162   4                      if (Command == 0x43)
+ 163   4                      {
+ 164   5                                              Count++;
+ 165   5                          if (Count > 1)
+ 166   5                          {
+ 167   6                              Count = 0;
+ 168   6                              break;
+ 169   6                          }
+ 170   5                      }
+ 171   4                  }
+ 172   3                  TR1 = 1;
+ 173   3                  FreqSelect2 = Music2[MusicSelect2];
+ 174   3                  FreqSelect = FreqSelect2;
+ 175   3                  MusicSelect2++;
+ 176   3                  Delay(125 * Music2[MusicSelect2]);
+C51 COMPILER V9.60.0.0   BEE                                                               03/20/2022 20:06:19 PAGE 4   
+
+ 177   3                  MusicSelect2++;
+ 178   3                  TR1 = 0;
+ 179   3                  Delay(5);
+ 180   3                  TR1 = 1;
+ 181   3                  if (Music2[MusicSelect2] == 0xFF)
+ 182   3                  {
+ 183   4                      MusicSelect2 = 0;
+ 184   4                  }
+ 185   3              }
+ 186   2              if (IR_GetDataFlag()) //如果收到数据帧
+ 187   2              {
+ 188   3                  Command = IR_GetCommand();
+ 189   3                  //获取遥控器命令码
+ 190   3                  if (Command == 0x44)
+ 191   3                  {
+ 192   4                      TR1 = ~TR1;
+ 193   4                      Count = temp;
+ 194   4                  }
+ 195   3                  if (Command == 0x40)
+ 196   3                                              
+ 197   3                      {
+ 198   4                                              Count--;
+ 199   4                          if (Count < 0&&Count==-1)
+ 200   4                          {
+ 201   5                              Count = 1;
+ 202   5                              break;
+ 203   5                          }
+ 204   4                         
+ 205   4                      }
+ 206   3                      if (Command == 0x43)
+ 207   3                      {
+ 208   4                                              Count++;
+ 209   4                          if (Count > 1&&Count==-1)
+ 210   4                          {
+ 211   5                              Count = 0;
+ 212   5                              break;
+ 213   5                          }
+ 214   4                      }
+ 215   3              }
+ 216   2          }
+ 217   1      }
+ 218          
+ 219          void Timer1_Routine() interrupt 3
+ 220          {
+ 221   1          if (FreqTable[FreqSelect])
+ 222   1          {
+ 223   2              TL1 = FreqTable[FreqSelect] % 256; //设置定时初始值
+ 224   2              TH1 = FreqTable[FreqSelect] / 256; //设置定时初始值
+ 225   2              Buzzer = !Buzzer;
+ 226   2          }
+ 227   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    438    ----
+   CONSTANT SIZE    =    206    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     81       1
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+C51 COMPILER V9.60.0.0   BEE                                                               03/20/2022 20:06:19 PAGE 5   
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

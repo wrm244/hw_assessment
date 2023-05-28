@@ -1,0 +1,38 @@
+Component Name : 74ALS15
+
+Part Count : 4
+
+Part : U?
+     Pins - (Normal) : 0
+          Hidden Pins : 
+
+Part : U?A
+     Pins - (Normal) : 6
+                         1              Input
+                         2              Input
+                         13             Input
+                         12             Open Collector
+          Hidden Pins : 
+          GND            7              Power
+          VCC            14             Power
+
+Part : U?B
+     Pins - (Normal) : 6
+                         3              Input
+                         4              Input
+                         5              Input
+                         6              Open Collector
+          Hidden Pins : 
+          GND            7              Power
+          VCC            14             Power
+
+Part : U?C
+     Pins - (Normal) : 6
+                         9              Input
+                         10             Input
+                         11             Input
+                         8              Open Collector
+          Hidden Pins : 
+          GND            7              Power
+          VCC            14             Power
+
